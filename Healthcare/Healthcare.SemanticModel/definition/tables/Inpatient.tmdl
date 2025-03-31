@@ -1,0 +1,137 @@
+table Inpatient
+	isHidden
+	lineageTag: 47fb16c5-64f0-44ff-8389-ba9272afa383
+
+	column 'Source.Name'
+		dataType: string
+		isHidden
+		lineageTag: a43a8546-03cc-43fa-8059-3eb5b7ee882d
+		summarizeBy: none
+		sourceColumn: Source.Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Archive_Date
+		dataType: string
+		isHidden
+		lineageTag: 4a761940-f299-46a8-9445-fe774326a9a1
+		summarizeBy: none
+		sourceColumn: Archive_Date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty_HIPE
+		dataType: string
+		isHidden
+		lineageTag: 6e2f8a65-5f6c-4b94-965e-64176cefb949
+		summarizeBy: none
+		sourceColumn: Specialty_HIPE
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty_Name
+		dataType: string
+		isHidden
+		lineageTag: a9d38d58-efa4-4b8b-b715-4f3acb9a2959
+		summarizeBy: none
+		sourceColumn: Specialty_Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Case_Type
+		dataType: string
+		isHidden
+		lineageTag: b9527f01-f89d-4d5a-8956-38b12f135ec7
+		summarizeBy: none
+		sourceColumn: Case_Type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Adult_Child
+		dataType: string
+		isHidden
+		lineageTag: a8c5df68-1be2-4a36-955d-83f72bea3055
+		summarizeBy: none
+		sourceColumn: Adult_Child
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age_Profile
+		dataType: string
+		isHidden
+		lineageTag: 4fb40419-35f0-45cf-afb3-a91e9fcee80e
+		summarizeBy: none
+		sourceColumn: Age_Profile
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Time_Bands
+		dataType: string
+		isHidden
+		lineageTag: f2b9e635-5c5f-44ab-8359-6aff205fc362
+		summarizeBy: none
+		sourceColumn: Time_Bands
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Total
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 5883be41-857e-4c89-9d32-5c929f2e96e3
+		summarizeBy: sum
+		sourceColumn: Total
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Inpatient = m
+		mode: import
+		source = ```
+				let
+				    Source = Folder.Files("D:\Power BI\Mock Projects\Healthcare\Data\Inpatient"),
+				    #"Filtered Hidden Files1" = Table.SelectRows(Source, each [Attributes]?[Hidden]? <> true),
+				    #"Invoke Custom Function1" = Table.AddColumn(#"Filtered Hidden Files1", "Transform File (2)", each #"Transform File (2)"([Content])),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Invoke Custom Function1", {"Name", "Source.Name"}),
+				    #"Removed Other Columns1" = Table.SelectColumns(#"Renamed Columns1", {"Source.Name", "Transform File (2)"}),
+				    #"Expanded Table Column1" = Table.ExpandTableColumn(#"Removed Other Columns1", "Transform File (2)", Table.ColumnNames(#"Transform File (2)"(#"Sample File (2)"))),
+				    // Step 1: Convert Archive_Date column from string to date
+				    #"Converted Archive_Date to Date" = Table.TransformColumns(
+				        #"Expanded Table Column1",
+				        {{"Archive_Date", each Date.FromText(_, [Format="dd-MM-yyyy"]), type date}}
+				    ),
+				    
+				    // Step 2: Format Archive_Date column into US date format (MM/dd/yyyy)
+				    #"Formatted Archive_Date to US Format" = Table.TransformColumns(
+				        #"Converted Archive_Date to Date",
+				        {{"Archive_Date", each Date.ToText(_, "MM/dd/yyyy"), type text}}
+				    ),
+				    #"Removed Columns" = Table.RemoveColumns(#"Formatted Archive_Date to US Format",{""}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{{"Total", Int64.Type}})
+				in
+				    #"Changed Type"
+				```
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

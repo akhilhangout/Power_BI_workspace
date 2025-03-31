@@ -1,0 +1,84 @@
+expression 'Sample File' =
+		let
+		    Source = Folder.Files("D:\Power BI\Mock Projects\Healthcare\Data\Outpatient"),
+		    Navigation1 = Source{0}[Content]
+		in
+		    Navigation1
+	lineageTag: 8f720203-2bd8-4dc1-b156-99c4e44e83dc
+	queryGroup: 'Transform File from Outpatient\Helper Queries'
+
+	annotation PBI_ResultType = Binary
+
+expression Parameter1 = #"Sample File" meta [IsParameterQuery=true, BinaryIdentifier=#"Sample File", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 761447d5-3ebc-4b09-afdf-ceab9d32eaad
+	queryGroup: 'Transform File from Outpatient\Helper Queries'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transform Sample File' =
+		let
+		    Source = Csv.Document(Parameter1,[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"Promoted Headers"
+	lineageTag: 798174c1-a252-47d6-b99f-17670e01d87f
+	queryGroup: 'Transform File from Outpatient'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transform File' =
+		let
+		    Source = (Parameter1) => let
+		        Source = Csv.Document(Parameter1,[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		        #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		    in
+		        #"Promoted Headers"
+		in
+		    Source
+	lineageTag: 1a932123-8227-4009-bf37-deca503b48e5
+	queryGroup: 'Transform File from Outpatient\Helper Queries'
+
+	annotation PBI_ResultType = Function
+
+expression 'Sample File (2)' =
+		let
+		    Source = Folder.Files("D:\Power BI\Mock Projects\Healthcare\Data\Inpatient"),
+		    Navigation1 = Source{0}[Content]
+		in
+		    Navigation1
+	lineageTag: f4dd4093-b12d-43df-9594-8d18354da967
+	queryGroup: 'Transform File from Inpatient\Helper Queries'
+
+	annotation PBI_ResultType = Binary
+
+expression Parameter2 = #"Sample File (2)" meta [IsParameterQuery=true, BinaryIdentifier=#"Sample File (2)", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 510c65f0-4f27-4f5e-ad72-d0cfec1ec236
+	queryGroup: 'Transform File from Inpatient\Helper Queries'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transform Sample File (2)' =
+		let
+		    Source = Csv.Document(Parameter2,[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		in
+		    #"Promoted Headers"
+	lineageTag: 3c6423ba-de37-46c3-a695-b01c9dc6a8f6
+	queryGroup: 'Transform File from Inpatient'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transform File (2)' =
+		let
+		    Source = (Parameter2) => let
+		        Source = Csv.Document(Parameter2,[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		        #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])
+		    in
+		        #"Promoted Headers"
+		in
+		    Source
+	lineageTag: c7da6e37-e887-4925-80ba-c73312123d64
+	queryGroup: 'Transform File from Inpatient\Helper Queries'
+
+	annotation PBI_ResultType = Function
+

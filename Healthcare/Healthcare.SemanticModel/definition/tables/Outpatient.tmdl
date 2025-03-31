@@ -1,0 +1,141 @@
+table Outpatient
+	isHidden
+	lineageTag: 16c12ed7-a7ab-4f60-9bb2-4e59f0d7cf8f
+
+	column 'Source.Name'
+		dataType: string
+		isHidden
+		lineageTag: 8c008b17-13e9-45f7-8b67-978280814759
+		summarizeBy: none
+		sourceColumn: Source.Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Archive_Date
+		dataType: dateTime
+		isHidden
+		formatString: Long Date
+		lineageTag: 8693cf43-6b24-4dcc-90e7-33be792a3a67
+		summarizeBy: none
+		sourceColumn: Archive_Date
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Specialty_HIPE
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e1a1dd7d-da57-4020-8407-08b612d94f00
+		summarizeBy: sum
+		sourceColumn: Specialty_HIPE
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty_Name
+		dataType: string
+		isHidden
+		lineageTag: ccc46643-bf85-4a9c-9c54-b183892f3a69
+		summarizeBy: none
+		sourceColumn: Specialty_Name
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Adult_Child
+		dataType: string
+		isHidden
+		lineageTag: 2be9541b-d24c-42d5-a59a-6b487b6f150c
+		summarizeBy: none
+		sourceColumn: Adult_Child
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age_Profile
+		dataType: string
+		isHidden
+		lineageTag: f125c5ca-129e-47a6-b7f9-7798b53b8df5
+		summarizeBy: none
+		sourceColumn: Age_Profile
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Time_Bands
+		dataType: string
+		isHidden
+		lineageTag: 1af6679a-410f-4aaa-95c0-55614bd35939
+		summarizeBy: none
+		sourceColumn: Time_Bands
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Total
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cd49cd31-138c-4e9c-a774-6ad693d7954a
+		summarizeBy: sum
+		sourceColumn: Total
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Case_Type
+		dataType: string
+		isHidden
+		lineageTag: 4d1ff2e4-9320-4630-af95-c07db9797a84
+		summarizeBy: none
+		sourceColumn: Case_Type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Outpatient = m
+		mode: import
+		source =
+				let
+				    Source = Folder.Files("D:\Power BI\Mock Projects\Healthcare\Data\Outpatient"),
+				    #"Filtered Hidden Files1" = Table.SelectRows(Source, each [Attributes]?[Hidden]? <> true),
+				    #"Invoke Custom Function1" = Table.AddColumn(#"Filtered Hidden Files1", "Transform File", each #"Transform File"([Content])),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Invoke Custom Function1", {"Name", "Source.Name"}),
+				    #"Removed Other Columns1" = Table.SelectColumns(#"Renamed Columns1", {"Source.Name", "Transform File"}),
+				    #"Expanded Table Column1" = Table.ExpandTableColumn(#"Removed Other Columns1", "Transform File", Table.ColumnNames(#"Transform File"(#"Sample File"))),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Table Column1",{{"Source.Name", type text}, {"Archive_Date", type text}, {"Specialty_HIPE", Int64.Type}, {"Speciality", type text}, {"Adult_Child", type text}, {"Age_Profile", type text}, {"Time_Bands", type text}, {"Total", Int64.Type}}),
+				   // Step 1: Convert Archive_Date column from string to date
+				    #"Converted Archive_Date to Date" = Table.TransformColumns(
+				        #"Changed Type",
+				        {{"Archive_Date", each Date.FromText(_, [Format="dd-MM-yyyy"]), type date}}
+				    ),
+				    // Step 2: Format Archive_Date column into US date format (MM/dd/yyyy)
+				    #"Formatted Archive_Date to US Format" = Table.TransformColumns(
+				        #"Converted Archive_Date to Date",
+				        {{"Archive_Date", each Date.ToText(_, "MM/dd/yyyy"), type text}}
+				    ),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Formatted Archive_Date to US Format",{{"Archive_Date", type date}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type2",{{"Speciality", "Specialty_Name"}}),
+				    #"Added Custom" = Table.AddColumn(#"Renamed Columns", "Case_Type", each "Outpatient")
+				in
+				    #"Added Custom"
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

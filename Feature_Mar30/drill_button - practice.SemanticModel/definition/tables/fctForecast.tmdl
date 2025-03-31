@@ -1,0 +1,98 @@
+table fctForecast
+	lineageTag: 4d325f11-887c-4da3-987c-333e60ad5299
+
+	column ChannelKey
+		dataType: int64
+		formatString: 0
+		lineageTag: f1815c3d-b435-4566-971f-1943cda6ac47
+		summarizeBy: none
+		sourceColumn: ChannelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column StoreKey
+		dataType: int64
+		formatString: 0
+		lineageTag: dc514356-b696-4ce1-880d-ed410e09cd41
+		summarizeBy: none
+		sourceColumn: StoreKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 120bd19d-d48e-4438-af4f-1a1cbf9aac51
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: dateTime
+		lineageTag: a7b8295d-b943-4bf9-ae53-c3085bf751ab
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column SalesQuantityQuota
+		dataType: int64
+		formatString: "€"\ #,0;-"€"\ #,0;"€"\ #,0
+		lineageTag: 78891b53-21aa-4b11-8f01-e27d3e9f422a
+		summarizeBy: sum
+		sourceColumn: SalesQuantityQuota
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesAmountQuota
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: a9a46ffd-5215-4ec8-ac3b-1c43e57cff43
+		summarizeBy: sum
+		sourceColumn: SalesAmountQuota
+
+		annotation SummarizationSetBy = Automatic
+
+	column GrossMarginQuota
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 1a59d2d5-2a73-434a-92e9-b8669324b353
+		summarizeBy: sum
+		sourceColumn: GrossMarginQuota
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fctForecast-9ba4528d-f9b2-4d4f-b4ac-9389d0a4811b = m
+		mode: import
+		queryGroup: 'Fact Tables'
+		source =
+				let
+				    Source = Sql.Databases("DATATRAINING\MSSQLSERVER2019"),
+				    ContosoRetailDW = Source{[Name="ContosoRetailDW"]}[Data],
+				    dbo_FactSalesQuota = ContosoRetailDW{[Schema="dbo",Item="FactSalesQuota"]}[Data],
+				    #"Expanded DimProduct" = Table.ExpandRecordColumn(dbo_FactSalesQuota, "DimProduct", {"DimProductSubcategory"}, {"DimProductSubcategory"}),
+				    #"Expanded DimProductSubcategory" = Table.ExpandRecordColumn(#"Expanded DimProduct", "DimProductSubcategory", {"DimProductCategory"}, {"DimProductCategory"}),
+				    #"Expanded DimProductCategory" = Table.ExpandRecordColumn(#"Expanded DimProductSubcategory", "DimProductCategory", {"ProductCategoryName"}, {"ProductCategoryName"}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Expanded DimProductCategory", each ([ProductCategoryName] = "Audio" or [ProductCategoryName] = "Cell phones" or [ProductCategoryName] = "Computers") and ([StoreKey] = 200 or [StoreKey] = 215 or [StoreKey] = 240 or [StoreKey] = 234 or [StoreKey] = 306 or [StoreKey] = 309) and ([ScenarioKey] = 3)),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Filtered Rows1",{{"DateKey", type date}}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(Table.TransformColumnTypes(#"Changed Type", {{"DateKey", type text}}, "en-GB"), "DateKey", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"DateKey.1", "DateKey.2", "DateKey.3"}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Split Column by Delimiter","2007","2018",Replacer.ReplaceValue,{"DateKey.3"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","2008","2019",Replacer.ReplaceValue,{"DateKey.3"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","2009","2020",Replacer.ReplaceValue,{"DateKey.3"}),
+				    #"Merged Columns" = Table.CombineColumns(#"Replaced Value2",{"DateKey.1", "DateKey.2", "DateKey.3"},Combiner.CombineTextByDelimiter("/", QuoteStyle.None),"DateKey"),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Merged Columns",{{"DateKey", type date}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Changed Type1",{"ChannelKey", "StoreKey", "ProductKey", "DateKey", "SalesQuantityQuota", "SalesAmountQuota", "GrossMarginQuota"})
+				in
+				    #"Removed Other Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

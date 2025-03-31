@@ -1,0 +1,159 @@
+table 'Patient Data'
+	lineageTag: 7f675c87-6c7e-4dc0-a235-4d16840da2c4
+
+	measure 'Latest Month Wait List' = ```
+			
+			    CALCULATE(
+			            sum('Patient Data'[Total]),
+			            'Patient Data'[Archive_Date] = MAX('Patient Data'[Archive_Date])
+			            )
+			```
+		formatString: 0
+		displayFolder: 1Measures
+		lineageTag: e29033a0-b3e5-42f4-a745-af118adc8e29
+
+	measure 'Latest Month Wait List Prev Year' = ```
+			
+			    CALCULATE(
+			            SUM('Patient Data'[Total]),
+			            'Patient Data'[Archive_Date] = EDATE(MAX('Patient Data'[Archive_Date]),-12)
+			            )
+			```
+		formatString: 0
+		displayFolder: 1Measures
+		lineageTag: b5f47732-ed85-4ea1-9cd2-bad320128b75
+
+	measure 'Avg Wait List' = AVERAGE('Patient Data'[Total])
+		displayFolder: 1Measures
+		lineageTag: 4f8ae408-ac6c-478d-b4c5-ef3f99f571d6
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Median Wait List' = MEDIAN('Patient Data'[Total])
+		displayFolder: 1Measures
+		lineageTag: bf7af813-49db-4e3b-8ff6-6cdcc6ede22a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg/Med Waitlist' = ```
+			
+			    SWITCH( 
+			        VALUES('Calculation Method'[Method]), 
+			                "Average",[Avg Wait List],
+			                "Median",[Median Wait List]
+			    )
+			
+			```
+		displayFolder: 1Measures
+		lineageTag: 4a105587-b6fd-439a-baf6-7dd5ff86f2b2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Source.Name'
+		dataType: string
+		lineageTag: 9de0c3d0-5b5a-4c13-8a33-294292110f9a
+		summarizeBy: none
+		sourceColumn: Source.Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Archive_Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: e497c844-5a79-4cc4-8937-cd5f122a50ef
+		summarizeBy: none
+		sourceColumn: Archive_Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Specialty_HIPE
+		dataType: string
+		lineageTag: 4c6b0ca3-61b4-479e-aedf-c1202b8eed6b
+		summarizeBy: none
+		sourceColumn: Specialty_HIPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column Specialty_Name
+		dataType: string
+		lineageTag: 825803cd-c746-4e2c-bc08-75ee0d06250e
+		summarizeBy: none
+		sourceColumn: Specialty_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Case_Type
+		dataType: string
+		lineageTag: 85c5df96-ff7f-4173-bf23-d8bd5c4996bd
+		summarizeBy: none
+		sourceColumn: Case_Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Adult_Child
+		dataType: string
+		lineageTag: 2afcc7d6-28c1-49ac-8a63-f11c80871b80
+		summarizeBy: none
+		sourceColumn: Adult_Child
+
+		annotation SummarizationSetBy = Automatic
+
+	column Age_Profile
+		dataType: string
+		lineageTag: f4b72eb9-1fac-4fc8-903e-45d91bb60cb7
+		summarizeBy: none
+		sourceColumn: Age_Profile
+
+		annotation SummarizationSetBy = Automatic
+
+	column Time_Bands
+		dataType: string
+		lineageTag: edd76a98-da6a-4892-8f40-b45219e4b69d
+		summarizeBy: none
+		sourceColumn: Time_Bands
+
+		annotation SummarizationSetBy = Automatic
+
+	column Total
+		dataType: int64
+		formatString: 0
+		lineageTag: d279c52a-683b-480d-9b53-7fc077772929
+		summarizeBy: sum
+		sourceColumn: Total
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year_Archive_Date = YEAR('Patient Data'[Archive_Date])
+		formatString: 0
+		lineageTag: 7d793539-b054-430a-b012-842d3ee69de7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month_Archive_Date = Month('Patient Data'[Archive_Date])
+		formatString: 0
+		lineageTag: cfcb86c0-182e-4eee-9c40-b7caed647d5c
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Patient Data' = m
+		mode: import
+		source =
+				let
+				    Source = Table.Combine({Inpatient, Outpatient}),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Archive_Date", type date}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"Time_Bands", Text.Trim, type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Trimmed Text","","No Input",Replacer.ReplaceValue,{"Age_Profile", "Time_Bands"}),
+				    #"Filtered Rows" = Table.SelectRows(#"Replaced Value", each true)
+				in
+				    #"Filtered Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

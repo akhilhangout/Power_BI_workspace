@@ -1,0 +1,97 @@
+table 'Sales Territory'
+	lineageTag: e8e5e45f-73f8-45a3-a8ae-59d42745b211
+
+	column SalesTerritoryKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4689cf4b-3e57-4658-a89c-132b01a195c9
+		summarizeBy: none
+		sourceColumn: SalesTerritoryKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesTerritoryAlternateKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 3b2ae088-dfa5-49e6-bffb-790413956b75
+		summarizeBy: none
+		sourceColumn: SalesTerritoryAlternateKey
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 895293e1-f501-43a3-b764-16c7625df4b1
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Country
+		dataType: string
+		lineageTag: 1db8c5b4-80d0-4904-97e0-91f2e0e40e62
+		dataCategory: Country
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column Group
+		dataType: string
+		lineageTag: 792f9662-0533-4264-80d3-6384e09c27ad
+		summarizeBy: none
+		sourceColumn: Group
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column SalesTerritoryImage
+		dataType: string
+		lineageTag: 9f202a54-6672-4d26-a0f7-472eddee22c1
+		summarizeBy: none
+		sourceColumn: SalesTerritoryImage
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	hierarchy 'Territory Drilldown'
+		lineageTag: 25955614-14f7-41d3-9bf8-ebd5fe7121b4
+
+		level Group
+			lineageTag: 51da1d01-6876-44d8-beab-544307e3f329
+			column: Group
+
+		level Country
+			lineageTag: 338b380e-23e4-4f97-baba-f60df783614b
+			column: Country
+
+		level Region
+			lineageTag: abf2d907-db04-4f69-9b31-4978a08ef664
+			column: Region
+
+	partition 'Sales Territory-7c718ca3-daf8-4217-8559-ce9000296151' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Power BI Security\Data\AdventureWorksDW.xlsx"), null, true),
+				    DimSalesTerritory_Sheet = Source{[Item="DimSalesTerritory",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(DimSalesTerritory_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"SalesTerritoryKey", Int64.Type}, {"SalesTerritoryAlternateKey", Int64.Type}, {"SalesTerritoryRegion", type text}, {"SalesTerritoryCountry", type text}, {"SalesTerritoryGroup", type text}, {"SalesTerritoryImage", type any}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"SalesTerritoryCountry", "Country"}, {"SalesTerritoryGroup", "Group"}, {"SalesTerritoryRegion", "Region"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_ResultType = Table
+

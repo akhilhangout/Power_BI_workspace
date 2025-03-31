@@ -1,0 +1,34 @@
+table Mapping_Specialty
+	lineageTag: fc08f84f-bed8-462d-a24a-a5970de22da5
+
+	column Specialty
+		dataType: string
+		lineageTag: d98f9235-b3cb-4a58-b5fe-917b81e2ef22
+		summarizeBy: none
+		sourceColumn: Specialty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Specialty Group'
+		dataType: string
+		lineageTag: 144e4bb2-1e7b-4777-89bd-daf832c3239a
+		summarizeBy: none
+		sourceColumn: Specialty Group
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Mapping_Specialty = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Power BI\Mock Projects\Healthcare\Data\Mapping_Specialty.csv"),[Delimiter=",", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Specialty", type text}, {"Specialty Group", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

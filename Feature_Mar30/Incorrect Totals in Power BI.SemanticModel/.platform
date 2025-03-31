@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Incorrect Totals in Power BI"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "71ed837a-99ce-9de1-4dd1-e84efe7c3f6f"
+  }
+}
