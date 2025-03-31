@@ -1,0 +1,71 @@
+table Sales
+	lineageTag: 2f087567-27a6-45fb-b29a-f3cb44735325
+
+	column 'Tran Id'
+		dataType: string
+		lineageTag: 39ac4a9c-3c5a-4868-ba72-616c1508cdd0
+		summarizeBy: none
+		sourceColumn: Tran Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5c2c5a23-cd5a-4265-afae-c9031f3cbb74
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Product ID'
+		dataType: string
+		lineageTag: 653485ae-e468-4a7f-b3f2-7dc5000abc68
+		summarizeBy: none
+		sourceColumn: Product ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Units
+		dataType: int64
+		formatString: 0
+		lineageTag: 1537d99f-5fd9-4c39-a89c-f37e1b53c4d4
+		summarizeBy: sum
+		sourceColumn: Units
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: 54141ab8-8ad6-427c-a245-6c6d2cd4f2fa
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales =
+			RELATED(Products[Price]) * Sales[Units]
+			// this column is created for this demo. You should rather write a measure like this
+			// Total Sales Measure = SUMX(Sales, RELATED(Products[Price]) * Sales[Units])
+		lineageTag: 3487d1b1-8a86-46db-943b-dd3eb183a1fb
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Sales-61af063f-7009-4139-a206-d7b41cea0533 = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Courses\Power BI - DAX Course\Online Data.xlsx"), null, true),
+				    Sales_Table = Source{[Item="Sales",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Sales_Table,{{"Tran Id", type text}, {"Date", type date}, {"Aff Payout Date", type date}, {"Region", type text}, {"Product ID", type text}, {"Units", Int64.Type}, {"Channel", type text}, {"Affiliate Code", type text}, {"Order Type", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Aff Payout Date", "Order Type", "Region", "Affiliate Code"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Exception
+

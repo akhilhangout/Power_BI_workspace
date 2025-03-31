@@ -1,0 +1,27 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.139.2054.0 (24.12)+334ca1c95b576cc53924655643b0d36f21caac55
+
+annotation PBI_QueryOrder = ["Customer","Date","Product","Sales Territory","Internet Sales"]
+
+ref table Customer
+ref table Date
+ref table Product
+ref table 'Sales Territory'
+ref table 'Internet Sales'
+
+ref role 'US and Mountain-200'
+ref role 'US Role'
+ref role Mountain-200
+ref role 'All Access'
+
+ref cultureInfo en-US
+

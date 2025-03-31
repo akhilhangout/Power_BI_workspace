@@ -1,0 +1,55 @@
+relationship 00b64614-4a3a-4d3d-bd89-361ed1370e1a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dimPromotion.StartDate
+	toColumn: LocalDateTable_111b1e89-7dcd-4e3e-a2f4-fea3664e134f.Date
+
+relationship fe1d7000-1ca9-46ea-88c2-8d135e7e7a2a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dimPromotion.EndDate
+	toColumn: LocalDateTable_f438e4dc-3b6c-4778-94af-aa7717ced0f8.Date
+
+relationship 3220cc32-63b6-4bc9-ab23-bdff9274028c
+	fromColumn: fctForecast.ChannelKey
+	toColumn: dimChannel.ChannelKey
+
+relationship 604a34f8-2edc-498e-b819-33fe8788162d
+	fromColumn: fctSales.channelKey
+	toColumn: dimChannel.ChannelKey
+
+relationship 5afa3f80-7981-49f4-b8e3-06602a374281
+	fromColumn: fctForecast.ProductKey
+	toColumn: dimProduct.ProductKey
+
+relationship 85d43a1c-d370-4deb-a7c9-e760b9ddc33e
+	fromColumn: fctSales.ProductKey
+	toColumn: dimProduct.ProductKey
+
+relationship 9624baf5-905b-43fb-bb41-ce0fdc62d124
+	fromColumn: fctSales.StoreKey
+	toColumn: dimStore.StoreKey
+
+relationship 72ab3a30-f263-43ea-87dc-9054ee959ff8
+	fromColumn: fctForecast.StoreKey
+	toColumn: dimStore.StoreKey
+
+relationship 713a791b-ea16-4e44-bf00-2dd991700900
+	fromColumn: fctSales.PromotionKey
+	toColumn: dimPromotion.PromotionKey
+
+relationship dba2d866-f0c6-4331-9419-88adb5bf764d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dimDate.Date
+	toColumn: LocalDateTable_bf294285-dbe1-4e4e-a194-0b797be5e70e.Date
+
+relationship bff4a384-8ed6-4b5b-b43d-cf728b0ba681
+	fromColumn: fctSales.DateKey
+	toColumn: dimDate.Date
+
+relationship cfa7b883-379a-4099-88de-9f5667227e77
+	fromColumn: fctForecast.DateKey
+	toColumn: dimDate.Date
+
+relationship 7b73e7db-fe5c-4d2f-8c73-b0a4ac5a991d
+	fromColumn: dimStore.LocationKey
+	toColumn: dimLocation.LocationKey
+

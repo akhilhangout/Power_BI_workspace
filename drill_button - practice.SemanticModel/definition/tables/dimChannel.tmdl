@@ -1,0 +1,59 @@
+table dimChannel
+	lineageTag: f22ee26e-a77b-4b85-811b-a92f7a59968c
+
+	column ChannelKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 78f5408a-d7b9-4e47-a685-4bbacfee66ca
+		summarizeBy: none
+		sourceColumn: ChannelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChannelLabel
+		dataType: string
+		lineageTag: 695b0269-92f8-491d-bd99-d7ed79589b2b
+		summarizeBy: none
+		sourceColumn: ChannelLabel
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column ChannelName
+		dataType: string
+		lineageTag: e1af2a93-a4e5-45d0-a08a-07478a7e568b
+		summarizeBy: none
+		sourceColumn: ChannelName
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column ChannelDescription
+		dataType: string
+		lineageTag: 45f01944-8237-4071-9876-d3c776bb900a
+		summarizeBy: none
+		sourceColumn: ChannelDescription
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	partition dimChannel-f50da41f-b504-474f-916a-7545d2c18c90 = m
+		mode: import
+		queryGroup: 'Dimension Tables'
+		source =
+				let
+				    Source = InputForDimTables,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"DimChannel"}),
+				    #"Expanded DimChannel" = Table.ExpandRecordColumn(#"Removed Other Columns", "DimChannel", {"ChannelKey", "ChannelLabel", "ChannelName", "ChannelDescription"}, {"ChannelKey", "ChannelLabel", "ChannelName", "ChannelDescription"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Expanded DimChannel", {"ChannelKey"}),
+				    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"ChannelKey", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

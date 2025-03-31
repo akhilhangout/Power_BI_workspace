@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "drill_button - practice"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "d9d6f4a2-2fd8-ba7e-44e0-721e18046da8"
+  }
+}
