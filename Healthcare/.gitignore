@@ -1,0 +1,22 @@
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# Ignore Power BI cache files
+*.abf
+
+# Ignore binary PBIX files
+*.pbix
+
+# Ignore temporary system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific folders/files
+.vscode/
+
+# Ignore log files
+*.log
+
+# Ignore other unnecessary folders/files
+Healthcare.SemanticModel/Temp/
+Healthcare.Report/Temp/

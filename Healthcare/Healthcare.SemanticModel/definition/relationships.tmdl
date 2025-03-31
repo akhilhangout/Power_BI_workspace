@@ -1,0 +1,4 @@
+relationship AutoDetected_2e0e442c-b3bb-4788-81a3-c39b0f9b8ec7
+	fromColumn: 'Patient Data'.Specialty_Name
+	toColumn: Mapping_Specialty.Specialty
+

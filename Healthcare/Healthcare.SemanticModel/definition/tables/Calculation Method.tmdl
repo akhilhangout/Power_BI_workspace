@@ -1,0 +1,25 @@
+table 'Calculation Method'
+	lineageTag: 62ae3fa9-3bb4-4dad-8795-cf9f55a250c8
+
+	column Method
+		lineageTag: 4d6b5815-64fe-4a3f-92fd-8165a8ba2349
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Method]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Calculation Method' = calculated
+		mode: import
+		source = ```
+				
+				            DATATABLE( "Method",STRING,
+				                        {
+				                        {"Average"},
+				                        {"Median"}
+				                        }
+				                    )
+				```
+
+	annotation PBI_Id = f318d17591b64217b6fc23167913e2ad
+
