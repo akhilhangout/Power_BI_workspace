@@ -1,9 +1,0 @@
-role 'US and Mountain-200'
-	modelPermission: read
-
-	tablePermission Product = [ModelName] = "Mountain-200"
-
-	tablePermission 'Sales Territory' = [Country] = "United States"
-
-	annotation PBI_Id = b2f0769af9544a0e9feae3fb16b1a778
-

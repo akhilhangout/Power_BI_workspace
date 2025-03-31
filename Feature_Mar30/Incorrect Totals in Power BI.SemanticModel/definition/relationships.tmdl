@@ -1,8 +1,0 @@
-relationship ad5d3380-cd72-49e5-8f01-652722ffde80
-	fromColumn: Sales.'Product ID'
-	toColumn: Products.'Product Code'
-
-relationship 5fa5f810-df2e-4713-bdc0-43cb348d8854
-	fromColumn: Sales.Date
-	toColumn: Calendar.Date
-

@@ -1,7 +1,0 @@
-role 'US Role'
-	modelPermission: read
-
-	tablePermission 'Sales Territory' = [Country] = "United States"
-
-	annotation PBI_Id = d9be425ba49e4d6fb8791cdaa6b2af59
-
