@@ -1,0 +1,171 @@
+table fctSales
+	lineageTag: f4991392-31c0-48fc-9f71-8e5cfe69c29d
+
+	column channelKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 540ac2ee-d6e8-4e25-a50a-b0f05719f416
+		summarizeBy: none
+		sourceColumn: channelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column StoreKey
+		dataType: int64
+		formatString: 0
+		lineageTag: c1677110-aa7f-49f5-8e16-01dfd11e1015
+		summarizeBy: none
+		sourceColumn: StoreKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 3801407f-a29c-4549-9f1b-6fb2889281b1
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column PromotionKey
+		dataType: double
+		formatString: 0
+		lineageTag: 9dd02302-a836-4306-978f-62b03e34d914
+		summarizeBy: none
+		sourceColumn: PromotionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: dateTime
+		lineageTag: 185c1761-198e-4131-a2ad-dfd882893190
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column UnitCost
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 1a4cf5d7-b4b8-46bd-b476-0154ac189a34
+		summarizeBy: sum
+		sourceColumn: UnitCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 8fe8ab7c-374a-4f81-b756-4bd58009a1d0
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 47c51ddb-dce9-4bb7-b9cc-f3c6c381054d
+		summarizeBy: sum
+		sourceColumn: SalesQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReturnQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: cd8f8a11-a2d7-47b2-ad4b-07da24899e51
+		summarizeBy: sum
+		sourceColumn: ReturnQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReturnAmount
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 15735a5d-5023-433b-9a1b-38330dbaf9a0
+		summarizeBy: sum
+		sourceColumn: ReturnAmount
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiscountQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: eae2141d-e77e-4214-a824-46248a6f1a6b
+		summarizeBy: sum
+		sourceColumn: DiscountQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiscountAmount
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 30c900ce-5627-43fc-8f93-cd624e41c426
+		summarizeBy: sum
+		sourceColumn: DiscountAmount
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalCost
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: dd6172bf-51f0-412c-a709-156dc2a4faf5
+		summarizeBy: sum
+		sourceColumn: TotalCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column SalesAmount
+		dataType: decimal
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 3cd619dd-327a-4356-b758-83997accba07
+		summarizeBy: sum
+		sourceColumn: SalesAmount
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fctSales-b1f8c641-ba8e-419a-8da5-95fa86af4ac0 = m
+		mode: import
+		queryGroup: 'Fact Tables'
+		source =
+				let
+				    Source = Sql.Databases("DATATRAINING\MSSQLSERVER2019"),
+				    ContosoRetailDW = Source{[Name="ContosoRetailDW"]}[Data],
+				    dbo_FactSales = ContosoRetailDW{[Schema="dbo",Item="FactSales"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(dbo_FactSales,{{"DateKey", type date}}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Changed Type",{"SalesKey", "channelKey", "StoreKey", "ProductKey", "PromotionKey", "CurrencyKey", "DateKey", "UnitCost", "UnitPrice", "SalesQuantity", "ReturnQuantity", "ReturnAmount", "DiscountQuantity", "DiscountAmount", "TotalCost", "SalesAmount", "ETLLoadID", "LoadDate", "UpdateDate", "DimChannel", "DimCurrency", "DimDate", "DimProduct", "DimPromotion", "DimStore"}),
+				    #"Expanded DimProduct" = Table.ExpandRecordColumn(#"Reordered Columns", "DimProduct", {"DimProductSubcategory"}, {"DimProductSubcategory"}),
+				    #"Expanded DimProductSubcategory" = Table.ExpandRecordColumn(#"Expanded DimProduct", "DimProductSubcategory", {"DimProductCategory"}, {"DimProductCategory"}),
+				    #"Expanded DimProductCategory" = Table.ExpandRecordColumn(#"Expanded DimProductSubcategory", "DimProductCategory", {"ProductCategoryName"}, {"ProductCategoryName"}),
+				    #"Filtered Rows" = Table.SelectRows(#"Expanded DimProductCategory", each ([ProductCategoryName] = "Audio" or [ProductCategoryName] = "Cell phones" or [ProductCategoryName] = "Computers") and ([StoreKey] = 200 or [StoreKey] = 215 or [StoreKey] = 240 or [StoreKey] = 234 or [StoreKey] = 306 or [StoreKey] = 309)),
+				    #"Split Column by Delimiter" = Table.SplitColumn(Table.TransformColumnTypes(#"Filtered Rows", {{"DateKey", type text}}, "en-GB"), "DateKey", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"DateKey.1", "DateKey.2", "DateKey.3"}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Split Column by Delimiter","2007","2018",Replacer.ReplaceText,{"DateKey.3"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","2008","2019",Replacer.ReplaceText,{"DateKey.3"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","2009","2020",Replacer.ReplaceText,{"DateKey.3"}),
+				    #"Merged Columns" = Table.CombineColumns(#"Replaced Value2",{"DateKey.1", "DateKey.2", "DateKey.3"},Combiner.CombineTextByDelimiter("/", QuoteStyle.None),"DateKey"),
+				    #"Filtered Rows1" = Table.SelectRows(#"Merged Columns", each ([DateKey] <> "29/02/2019")),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Filtered Rows1",{{"DateKey", type date}}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Changed Type1",{"channelKey", "StoreKey", "ProductKey", "PromotionKey", "DateKey", "UnitCost", "UnitPrice", "SalesQuantity", "ReturnQuantity", "ReturnAmount", "DiscountQuantity", "DiscountAmount", "TotalCost", "SalesAmount"}),
+				    #"Replaced Value3" = Table.ReplaceValue(#"Removed Other Columns",2,8,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value4" = Table.ReplaceValue(#"Replaced Value3",3,9,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value5" = Table.ReplaceValue(#"Replaced Value4",4,10,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value6" = Table.ReplaceValue(#"Replaced Value5",11,17,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value7" = Table.ReplaceValue(#"Replaced Value6",12,18,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value8" = Table.ReplaceValue(#"Replaced Value7",13,19,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value9" = Table.ReplaceValue(#"Replaced Value8",20,26,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value10" = Table.ReplaceValue(#"Replaced Value9",21,27,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Replaced Value11" = Table.ReplaceValue(#"Replaced Value10",22,28,Replacer.ReplaceValue,{"PromotionKey"}),
+				    #"Filtered Rows2" = Table.SelectRows(#"Replaced Value11", each [DateKey] < #date(2020, 7, 1))
+				in
+				    #"Filtered Rows2"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

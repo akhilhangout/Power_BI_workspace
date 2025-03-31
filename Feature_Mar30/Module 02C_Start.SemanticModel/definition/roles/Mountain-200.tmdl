@@ -1,0 +1,7 @@
+role Mountain-200
+	modelPermission: read
+
+	tablePermission Product = [ModelName] = "Mountain-200"
+
+	annotation PBI_Id = 0efcf2fcce7f4f9ab871c85c27b6778b
+

@@ -1,0 +1,30 @@
+expression InputForDimTables =
+		let
+		    Source = Sql.Databases("DATATRAINING\MSSQLSERVER2019"),
+		    ContosoRetailDW = Source{[Name="ContosoRetailDW"]}[Data],
+		    dbo_FactSales = ContosoRetailDW{[Schema="dbo",Item="FactSales"]}[Data],
+		    #"Changed Type" = Table.TransformColumnTypes(dbo_FactSales,{{"DateKey", type date}}),
+		    #"Reordered Columns" = Table.ReorderColumns(#"Changed Type",{"SalesKey", "channelKey", "StoreKey", "ProductKey", "PromotionKey", "CurrencyKey", "DateKey", "UnitCost", "UnitPrice", "SalesQuantity", "ReturnQuantity", "ReturnAmount", "DiscountQuantity", "DiscountAmount", "TotalCost", "SalesAmount", "ETLLoadID", "LoadDate", "UpdateDate", "DimChannel", "DimCurrency", "DimDate", "DimProduct", "DimPromotion", "DimStore"}),
+		    #"Duplicated Column" = Table.DuplicateColumn(#"Reordered Columns", "DimProduct", "DimProduct - Copy"),
+		    #"Expanded DimProduct" = Table.ExpandRecordColumn(#"Duplicated Column", "DimProduct", {"DimProductSubcategory"}, {"DimProductSubcategory"}),
+		    #"Expanded DimProductSubcategory" = Table.ExpandRecordColumn(#"Expanded DimProduct", "DimProductSubcategory", {"DimProductCategory"}, {"DimProductCategory"}),
+		    #"Expanded DimProductCategory" = Table.ExpandRecordColumn(#"Expanded DimProductSubcategory", "DimProductCategory", {"ProductCategoryName"}, {"ProductCategoryName"}),
+		    #"Filtered Rows1" = Table.SelectRows(#"Expanded DimProductCategory", each ([ProductCategoryName] = "Audio" or [ProductCategoryName] = "Cell phones" or [ProductCategoryName] = "Computers") and ([StoreKey] = 200 or [StoreKey] = 215 or [StoreKey] = 240 or [StoreKey] = 234 or [StoreKey] = 306 or [StoreKey] = 309)),
+		    #"Replaced Value3" = Table.ReplaceValue(#"Filtered Rows1",2,8,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value4" = Table.ReplaceValue(#"Replaced Value3",3,9,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value5" = Table.ReplaceValue(#"Replaced Value4",4,10,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value6" = Table.ReplaceValue(#"Replaced Value5",11,17,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value7" = Table.ReplaceValue(#"Replaced Value6",12,18,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value8" = Table.ReplaceValue(#"Replaced Value7",13,19,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value9" = Table.ReplaceValue(#"Replaced Value8",20,26,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value10" = Table.ReplaceValue(#"Replaced Value9",21,27,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Replaced Value11" = Table.ReplaceValue(#"Replaced Value10",22,28,Replacer.ReplaceValue,{"PromotionKey"}),
+		    #"Removed Other Columns" = Table.SelectColumns(#"Filtered Rows1",{"DimChannel", "DimCurrency", "DimDate", "DimPromotion", "DimStore", "DimProduct - Copy"})
+		in
+		    #"Removed Other Columns"
+	lineageTag: 1900a102-6c8c-4bdf-a809-ca6c910b0ecf
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

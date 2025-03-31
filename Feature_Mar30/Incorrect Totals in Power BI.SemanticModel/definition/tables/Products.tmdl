@@ -1,0 +1,71 @@
+table Products
+	lineageTag: 03207bcb-976b-46b0-a1f0-46ca5f8c750b
+
+	measure 'Count of Products' = COUNTA(Products[Product Code])
+		formatString: 0
+		lineageTag: 95df2055-46a9-4688-90c1-73f5fc2fe56b
+
+	column 'Product Code'
+		dataType: string
+		lineageTag: 4da5fe6a-3b96-45b0-b2d8-f013958c211d
+		summarizeBy: none
+		sourceColumn: Product Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		dataType: string
+		lineageTag: eb5ddca3-2055-49d7-8f43-45afd8486d19
+		summarizeBy: none
+		sourceColumn: Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column Product
+		dataType: string
+		lineageTag: 5c62b0a7-7c30-4d60-b188-2d4152f3f373
+		summarizeBy: none
+		sourceColumn: Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column Category
+		dataType: string
+		lineageTag: 95485627-8504-44fb-8cc1-6604aaec788d
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Price
+		dataType: double
+		lineageTag: fbea5b22-ae12-4730-b7ef-91889ade1bcb
+		summarizeBy: none
+		sourceColumn: Price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Commission
+		dataType: double
+		lineageTag: d34ba114-3100-407b-aeaa-578b7249c4d0
+		summarizeBy: none
+		sourceColumn: Commission
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition Products-5f8aa543-7ca9-41c1-abd8-059977dee9eb = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("D:\Courses\Power BI - DAX Course\Online Data.xlsx"), null, true),
+				    Products_Table = Source{[Item="Products",Kind="Table"]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(Products_Table,{{"Product Code", type text}, {"Type", type text}, {"Product", type text}, {"Category", type text}, {"Price", type number}, {"Commission", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

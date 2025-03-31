@@ -1,0 +1,139 @@
+table dimPromotion
+	lineageTag: 8cfc068c-7169-4a79-b4e8-48bd0730ab4d
+
+	column PromotionKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 83cbc73e-f22a-4f49-935a-e789f0293ff3
+		summarizeBy: none
+		sourceColumn: PromotionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column PromotionLabel
+		dataType: string
+		lineageTag: a45b37a2-89a6-4e79-a5e4-80fa7db0e336
+		summarizeBy: none
+		sourceColumn: PromotionLabel
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column PromotionName
+		dataType: string
+		lineageTag: 002928f4-c28b-4416-9b94-89cc24694cc5
+		summarizeBy: none
+		sourceColumn: PromotionName
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column PromotionDescription
+		dataType: string
+		lineageTag: 294e1239-cfcd-4dff-bcd3-04959899d74f
+		summarizeBy: none
+		sourceColumn: PromotionDescription
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column DiscountPercent
+		dataType: double
+		lineageTag: 14b21937-8086-4c29-81e6-72ff9fee7f27
+		summarizeBy: sum
+		sourceColumn: DiscountPercent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PromotionType
+		dataType: string
+		lineageTag: 0efdb333-26b7-4384-9e68-2319c4078621
+		summarizeBy: none
+		sourceColumn: PromotionType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column PromotionCategory
+		dataType: string
+		lineageTag: 8467f1ed-c2f2-49bc-bd7f-5312fce5352d
+		summarizeBy: none
+		sourceColumn: PromotionCategory
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	column StartDate
+		dataType: dateTime
+		lineageTag: 3a34777e-090b-4281-a96d-8fc468daccc9
+		summarizeBy: none
+		sourceColumn: StartDate
+
+		variation Variation
+			isDefault
+			relationship: 00b64614-4a3a-4d3d-bd89-361ed1370e1a
+			defaultHierarchy: LocalDateTable_111b1e89-7dcd-4e3e-a2f4-fea3664e134f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column EndDate
+		dataType: dateTime
+		lineageTag: 189a4679-e0e0-4d02-8f6e-99cb6548b64a
+		summarizeBy: none
+		sourceColumn: EndDate
+
+		variation Variation
+			isDefault
+			relationship: fe1d7000-1ca9-46ea-88c2-8d135e7e7a2a
+			defaultHierarchy: LocalDateTable_f438e4dc-3b6c-4778-94af-aa7717ced0f8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	partition dimPromotion-edbb4c45-034a-4600-9c66-653aaf435d21 = m
+		mode: import
+		queryGroup: 'Dimension Tables'
+		source =
+				let
+				    Source = InputForDimTables,
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"DimPromotion"}),
+				    #"Expanded DimPromotion" = Table.ExpandRecordColumn(#"Removed Other Columns", "DimPromotion", {"PromotionKey", "PromotionLabel", "PromotionName", "PromotionDescription", "DiscountPercent", "PromotionType", "PromotionCategory", "StartDate", "EndDate", "MinQuantity", "MaxQuantity"}, {"PromotionKey", "PromotionLabel", "PromotionName", "PromotionDescription", "DiscountPercent", "PromotionType", "PromotionCategory", "StartDate", "EndDate", "MinQuantity", "MaxQuantity"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Expanded DimPromotion", {"PromotionKey"}),
+				    #"Sorted Rows" = Table.Sort(#"Removed Duplicates",{{"PromotionKey", Order.Ascending}}),
+				    #"Removed Other Columns1" = Table.SelectColumns(#"Sorted Rows",{"PromotionKey", "PromotionLabel", "PromotionName", "PromotionDescription", "DiscountPercent", "PromotionType", "PromotionCategory", "StartDate", "EndDate"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Other Columns1",{{"StartDate", type date}, {"EndDate", type date}}),
+				    #"Split Column by Delimiter" = Table.SplitColumn(Table.TransformColumnTypes(#"Changed Type", {{"StartDate", type text}}, "en-GB"), "StartDate", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"StartDate.1", "StartDate.2", "StartDate.3"}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Split Column by Delimiter","2007","2018",Replacer.ReplaceText,{"StartDate.3"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","2008","2019",Replacer.ReplaceText,{"StartDate.3"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","2009","2020",Replacer.ReplaceText,{"StartDate.3"}),
+				    #"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","2003","2018",Replacer.ReplaceText,{"StartDate.3"}),
+				    #"Merged Columns" = Table.CombineColumns(#"Replaced Value3",{"StartDate.1", "StartDate.2", "StartDate.3"},Combiner.CombineTextByDelimiter("/", QuoteStyle.None),"StartDate"),
+				    #"Split Column by Delimiter1" = Table.SplitColumn(Table.TransformColumnTypes(#"Merged Columns", {{"EndDate", type text}}, "en-GB"), "EndDate", Splitter.SplitTextByDelimiter("/", QuoteStyle.Csv), {"EndDate.1", "EndDate.2", "EndDate.3"}),
+				    #"Replaced Value4" = Table.ReplaceValue(#"Split Column by Delimiter1","2007","2018",Replacer.ReplaceText,{"EndDate.3"}),
+				    #"Replaced Value5" = Table.ReplaceValue(#"Replaced Value4","2008","2019",Replacer.ReplaceText,{"EndDate.3"}),
+				    #"Replaced Value6" = Table.ReplaceValue(#"Replaced Value5","2009","2020",Replacer.ReplaceText,{"EndDate.3"}),
+				    #"Replaced Value7" = Table.ReplaceValue(#"Replaced Value6","2010","2020",Replacer.ReplaceText,{"EndDate.3"}),
+				    #"Merged Columns1" = Table.CombineColumns(#"Replaced Value7",{"EndDate.1", "EndDate.2", "EndDate.3"},Combiner.CombineTextByDelimiter("/", QuoteStyle.None),"EndDate"),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Merged Columns1",{{"StartDate", type date}, {"EndDate", type date}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Changed Type1", each ([PromotionName] <> "North America Back-to-School Promotion" and [PromotionName] <> "North America Holiday Promotion" and [PromotionName] <> "North America Spring Promotion"))
+				in
+				    #"Filtered Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
