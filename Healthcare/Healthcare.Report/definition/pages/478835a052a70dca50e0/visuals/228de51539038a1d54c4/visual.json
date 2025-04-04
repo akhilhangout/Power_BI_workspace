@@ -6,7 +6,7 @@
     "y": 96,
     "z": 0,
     "height": 112,
-    "width": 192,
+    "width": 208,
     "tabOrder": 0
   },
   "visual": {
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "Patient Data.Latest Month Wait List",
-              "nativeQueryRef": "Latest Month Wait List"
+              "nativeQueryRef": "Recent Month Wait List",
+              "displayName": "Recent Month Wait List"
             }
           ]
         }
@@ -95,10 +96,28 @@
                   }
                 }
               }
+            },
+            "showBlankAs": {
+              "expr": {
+                "Literal": {
+                  "Value": "'--'"
+                }
+              }
             }
           },
           "selector": {
             "id": "default"
+          }
+        },
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
           }
         }
       ],
